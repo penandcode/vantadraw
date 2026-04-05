@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VantaDraw | Tactical Drafting Studio</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23050507'/%3E%3Cpath d='M35 65 L65 35 M60 35 L65 35 L65 40 M35 65 L30 65 L30 60' stroke='%23ff4d00' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+    <meta name="description" content="Experience a new way of digital drawing. No clicks needed—just hover and glide your mouse to create stunning art with GhostDraw.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="custom-cursor"></div>
+        <div id="toast-container"></div>
+        <!-- Floating Header -->
+        <header class="glass-panel main-header">
+            <a href="index.html" id="logo">VantaDraw<span>.</span></a>
+            <div class="header-actions">
+                <button id="clear-canvas" class="btn secondary" title="Clear Canvas (C)">Clear</button>
+                <button id="download-art" class="btn primary" title="Export as PNG (E)">Export</button>
+            </div>
+        </header>
+
+        <!-- Main Drawing Area -->
+        <main class="canvas-container">
+            <div id="canvas-stack">
+                <canvas id="grid-canvas"></canvas>
+            </div>
+            <div id="gesture-hint" class="hint-overlay">Drafting Engine: <span class="active-status">Active</span></div>
+        </main>
+
+        <!-- Right Toolbelt: Layers -->
+        <aside class="glass-panel layer-sidebar">
+            <div class="sidebar-header">
+                <label>Layers</label>
+                <button id="add-layer-btn" class="icon-btn" title="New Layer (L)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            </div>
+            <div id="layer-list" class="layer-stack-ui">
+                <!-- High-performance layer items -->
+            </div>
+        </aside>
+
+        <!-- Tool Sidebar -->
+        <aside class="glass-panel tool-sidebar">
+            <div class="tool-group">
+                <label>Brush Style</label>
+                <div class="brush-options">
+                    <button class="tool-btn active" data-tool="ink" title="Ink Pen (1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l5 5"/></svg>
+                        <kbd>1</kbd>
+                    </button>
+                    <button class="tool-btn" data-tool="marker" title="Thick Marker (2)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4l-3-3-9 9-2 5 5-2 9-9z"/><path d="M19 8l-3-3"/></svg>
+                        <kbd>2</kbd>
+                    </button>
+                    <button class="tool-btn" data-tool="charcoal" title="Grainy Charcoal (3)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3" fill="currentColor" fill-opacity="0.3"/></svg>
+                        <kbd>3</kbd>
+                    </button>
+                    <button class="tool-btn" data-tool="calligraphy" title="Calligraphy Nib (4)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21l-7-7-4 4-2-2 4-4-7-7 2-2 7 7 4-4 2 2-4 4 7 7-2 2z"/></svg>
+                        <kbd>4</kbd>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <label>Size</label>
+                <input type="range" id="brush-size" min="1" max="100" value="2" class="smooth-range">
+                <span id="size-value" class="badge">2px</span>
+            </div>
+
+            <div class="tool-group">
+                <label>Colors</label>
+                <div id="color-palette" class="color-grid">
+                    <!-- Dynamic colors -->
+                </div>
+                <div class="custom-color-row">
+                    <input type="color" id="color-picker" value="#6366f1">
+                    <label for="color-picker" class="picker-label">Custom</label>
+                </div>
+            </div>
+
+            <div class="tool-group toggle-group">
+                <label class="switch-container">
+                    <span class="label">Symmetry</span>
+                    <label class="switch">
+                        <input type="checkbox" id="symmetry-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </label>
+                <p class="small-text desc">Vertical Mirror</p>
+            </div>
+
+            <div class="tool-group toggle-group">
+                <label class="switch-container">
+                    <span class="label">Mandala</span>
+                    <label class="switch">
+                        <input type="checkbox" id="mandala-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </label>
+                <div class="mandala-controls">
+                    <input type="range" id="mandala-axes" min="2" max="16" step="2" value="8">
+                    <span id="axes-value" class="small-text">8 Axes</span>
+                </div>
+                <p class="small-text desc">Rotational Symmetry (M)</p>
+            </div>
+
+            <div class="tool-group">
+                <label>Surface</label>
+                <div class="surface-options">
+                    <button class="surface-btn active" data-surface="none" title="Flat Digital (D)">None</button>
+                    <button class="surface-btn" data-surface="grain" title="Cold Press Paper (G)">Grain</button>
+                    <button class="surface-btn" data-surface="canvas" title="Woven Canvas (V)">Canvas</button>
+                </div>
+            </div>
+
+            <div class="tool-group toggle-group">
+                <label class="switch-container">
+                    <span class="label">Stabilizer</span>
+                    <label class="switch">
+                        <input type="checkbox" id="stabilizer-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </label>
+                <p class="small-text desc">Smooths out shaky strokes</p>
+            </div>
+
+            <div class="tool-group toggle-group">
+                <label class="switch-container">
+                    <span class="label">Touch Mode</span>
+                    <label class="switch">
+                        <input type="checkbox" id="touchless-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </label>
+                <p class="small-text desc">Draw by hovering (S)</p>
+            </div>
+
+            <div class="tool-group toggle-group">
+                <label class="switch-container">
+                    <span class="label">Drafting Grid</span>
+                    <label class="switch">
+                        <input type="checkbox" id="perspective-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </label>
+                <p class="small-text desc">Perspective guides (G)</p>
+            </div>
+
+        </aside>
+ 
+        <footer class="glass-panel stats-panel">
+            <div id="pos-display" class="stat-item">System <span class="active-status">Active</span></div>
+            <div id="hud-coords" class="stat-item">X: 000 // Y: 000</div>
+            <div class="footer-actions">
+                <button id="replay-session" class="btn secondary xsmall" title="Replay Session (R)">Replay</button>
+                <button id="show-shortcuts" class="btn secondary xsmall">Shortcuts</button>
+                <button id="studio-toggle" class="btn primary xsmall" title="Immersive Mode (F)">Studio Mode</button>
+            </div>
+        </footer>
+
+        <!-- Shortcuts Overlay -->
+        <div id="shortcuts-modal" class="glass-panel modal-overlay" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h4>Studio Commands</h4>
+                    <button id="close-shortcuts" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="shortcut-list">
+                        <div class="shortcut"><span>Undo / Redo</span><kbd>Cmd/Ctrl + Z / Y</kbd></div>
+                        <div class="shortcut"><span>Touchless Drafting (On/Off)</span><kbd>S</kbd></div>
+                        <div class="shortcut"><span>Perspective Grid (On/Off)</span><kbd>G</kbd></div>
+                        <div class="shortcut"><span>Mandala Symmetry (On/Off)</span><kbd>M</kbd></div>
+                        <div class="shortcut"><span>New Studio Layer</span><kbd>L</kbd></div>
+                        <div class="shortcut"><span>Clear Current Layer</span><kbd>C / Space</kbd></div>
+                        <div class="shortcut"><span>Studio Focus Mode (On/Off)</span><kbd>F</kbd></div>
+                        <div class="shortcut"><span>Direct Tool Selection</span><kbd>1 — 4</kbd></div>
+                        <div class="shortcut"><span>Session Replay</span><kbd>R</kbd></div>
+                        <div class="shortcut"><span>Quick ExportArt</span><kbd>E</kbd></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Studio Performance Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
